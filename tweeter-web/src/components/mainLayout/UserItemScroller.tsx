@@ -1,20 +1,26 @@
-import { useContext } from "react";
-import {
-  UserInfoContext,
-  UserInfoActionsContext,
-} from "../userInfo/UserInfoContexts";
+import { useUserInfo, useUserInfoActions } from "../userInfo/UserInfoHooks";
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken, FakeData, User } from "tweeter-shared";
-import { ToastActionsContext } from "../toaster/ToastContexts";
+import { useMessageActions } from "../toaster/MessageHooks";
 import { useParams } from "react-router-dom";
-import { ToastType } from "../toaster/Toast";
 import UserItem from "../userItem/UserItem";
 
 export const PAGE_SIZE = 10;
 
-const FollowersScroller = () => {
-  const { displayToast } = useContext(ToastActionsContext);
+interface Props {
+  itemDescription: string;
+  featurePath: string;
+  loadMore: (
+    authToken: AuthToken,
+    userAlias: string,
+    pageSize: number,
+    lastItem: User | null
+  ) => Promise<[User[], boolean]>;
+}
+
+const UserItemScroller = (props: Props) => {
+  const { displayErrorMessage } = useMessageActions();
   const [items, setItems] = useState<User[]>([]);
   const [hasMoreItems, setHasMoreItems] = useState(true);
   const [lastItem, setLastItem] = useState<User | null>(null);
@@ -22,19 +28,10 @@ const FollowersScroller = () => {
   const addItems = (newItems: User[]) =>
     setItems((previousItems) => [...previousItems, ...newItems]);
 
-  const { displayedUser, authToken } = useContext(UserInfoContext);
-  const { setDisplayedUser } = useContext(UserInfoActionsContext);
+  const { displayedUser, authToken } = useUserInfo();
+  const { setDisplayedUser } = useUserInfoActions();
   const { displayedUser: displayedUserAliasParam } = useParams();
 
-  const getUser = async (
-    authToken: AuthToken,
-    alias: string
-  ): Promise<User | null> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.findUserByAlias(alias);
-  };
-
-  // Update the displayed user context variable whenever the displayedUser url parameter changes. This allows browser forward and back buttons to work correctly.
   useEffect(() => {
     if (
       authToken &&
@@ -49,7 +46,6 @@ const FollowersScroller = () => {
     }
   }, [displayedUserAliasParam]);
 
-  // Initialize the component whenever the displayed user changes
   useEffect(() => {
     reset();
     loadMoreItems(null);
@@ -63,7 +59,7 @@ const FollowersScroller = () => {
 
   const loadMoreItems = async (lastItem: User | null) => {
     try {
-      const [newItems, hasMore] = await loadMoreFollowers(
+      const [newItems, hasMore] = await props.loadMore(
         authToken!,
         displayedUser!.alias,
         PAGE_SIZE,
@@ -74,22 +70,17 @@ const FollowersScroller = () => {
       setLastItem(() => newItems[newItems.length - 1]);
       addItems(newItems);
     } catch (error) {
-      displayToast(
-        ToastType.Error,
-        `Failed to load followers because of exception: ${error}`,
-        0
+      displayErrorMessage(
+        `Failed to load ${props.itemDescription} because of exception: ${error}`
       );
     }
   };
 
-  const loadMoreFollowers = async (
+  const getUser = async (
     authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastFollower: User | null
-  ): Promise<[User[], boolean]> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfUsers(lastFollower, pageSize, userAlias);
+    alias: string
+  ): Promise<User | null> => {
+    return FakeData.instance.findUserByAlias(alias);
   };
 
   return (
@@ -106,7 +97,7 @@ const FollowersScroller = () => {
             key={index}
             className="row mb-3 mx-0 px-0 border rounded bg-white"
           >
-            <UserItem user={item} featurePath="/followers" />
+            <UserItem user={item} featurePath={props.featurePath} />
           </div>
         ))}
       </InfiniteScroll>
@@ -114,4 +105,4 @@ const FollowersScroller = () => {
   );
 };
 
-export default FollowersScroller;
+export default UserItemScroller;
