@@ -18,4 +18,11 @@ export class StatusService {
   ): Promise<[Status[], boolean]> {
     return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
   }
+
+  public async postStatus(
+    authToken: AuthToken,
+    newStatus: Status
+  ): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
 }
