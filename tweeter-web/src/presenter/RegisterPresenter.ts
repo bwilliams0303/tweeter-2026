@@ -1,31 +1,17 @@
 import { Buffer } from "buffer";
-import { AuthToken, User } from "tweeter-shared";
-import { UserService } from "../model/service/UserService";
+import { User } from "tweeter-shared";
+import {
+  AuthenticationPresenter,
+  AuthenticationView,
+} from "./AuthenticationPresenter";
 
-export interface RegisterView {
-  setIsLoading: (isLoading: boolean) => void;
+export interface RegisterView extends AuthenticationView {
   setImageUrl: (imageUrl: string) => void;
   setImageBytes: (imageBytes: Uint8Array) => void;
   setImageFileExtension: (imageFileExtension: string) => void;
-  updateUserInfo: (
-    currentUser: User,
-    displayedUser: User | null,
-    authToken: AuthToken,
-    remember: boolean
-  ) => void;
-  navigate: (url: string) => void;
-  displayErrorMessage: (message: string) => void;
 }
 
-export class RegisterPresenter {
-  private view: RegisterView;
-  private userService: UserService;
-
-  public constructor(view: RegisterView) {
-    this.view = view;
-    this.userService = new UserService();
-  }
-
+export class RegisterPresenter extends AuthenticationPresenter<RegisterView> {
   public checkSubmitButtonStatus(
     firstName: string,
     lastName: string,
@@ -87,26 +73,19 @@ export class RegisterPresenter {
     imageFileExtension: string,
     rememberMe: boolean
   ) {
-    try {
-      this.view.setIsLoading(true);
-
-      const [user, authToken] = await this.userService.register(
-        firstName,
-        lastName,
-        alias,
-        password,
-        imageBytes,
-        imageFileExtension
-      );
-
-      this.view.updateUserInfo(user, user, authToken, rememberMe);
-      this.view.navigate(`/feed/${user.alias}`);
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to register user because of exception: ${error}`
-      );
-    } finally {
-      this.view.setIsLoading(false);
-    }
+    await this.doAuthenticationOperation(
+      () =>
+        this.userService.register(
+          firstName,
+          lastName,
+          alias,
+          password,
+          imageBytes,
+          imageFileExtension
+        ),
+      (user: User) => this.view.navigate(`/feed/${user.alias}`),
+      rememberMe,
+      "register user"
+    );
   }
 }
