@@ -13,11 +13,10 @@ import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
 import UserItemScroller from "./components/mainLayout/UserItemScroller";
 import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
-import { User } from "tweeter-shared";
+import { Status, User } from "tweeter-shared";
 import { PagedItemView } from "./presenter/PagedItemPresenter";
 import { FolloweePresenter } from "./presenter/FolloweePresenter";
 import { FollowerPresenter } from "./presenter/FollowerPresenter";
-import { StatusItemView } from "./presenter/StatusItemPresenter";
 import { FeedPresenter } from "./presenter/FeedPresenter";
 import { StoryPresenter } from "./presenter/StoryPresenter";
 
@@ -55,7 +54,7 @@ const AuthenticatedRoutes = () => {
             <StatusItemScroller
               key={`feed-${displayedUser!.alias}`}
               featurePath="/feed"
-              presenterFactory={(view: StatusItemView) =>
+              presenterFactory={(view: PagedItemView<Status>) =>
                 new FeedPresenter(view)
               }
             />
@@ -67,7 +66,7 @@ const AuthenticatedRoutes = () => {
             <StatusItemScroller
               key={`story-${displayedUser!.alias}`}
               featurePath="/story"
-              presenterFactory={(view: StatusItemView) =>
+              presenterFactory={(view: PagedItemView<Status>) =>
                 new StoryPresenter(view)
               }
             />
