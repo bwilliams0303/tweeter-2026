@@ -1,3 +1,6 @@
+// AI-assisted: see AI-ATTRIBUTION.md
+import { UserDto } from "../dto/UserDto";
+
 export class User {
   private _firstName: string;
   private _lastName: string;
@@ -54,6 +57,22 @@ export class User {
 
   public equals(other: User): boolean {
     return this._alias === other._alias;
+  }
+
+  public get dto(): UserDto {
+    return {
+      firstName: this.firstName,
+      lastName: this.lastName,
+      alias: this.alias,
+      imageUrl: this.imageUrl,
+    };
+  }
+
+  public static fromDto(dto: UserDto | null): User | null {
+    if (dto === null) {
+      return null;
+    }
+    return new User(dto.firstName, dto.lastName, dto.alias, dto.imageUrl);
   }
 
   public static fromJson(json: string | null | undefined): User | null {
