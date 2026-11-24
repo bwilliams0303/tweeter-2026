@@ -11,9 +11,15 @@ import Login from "./components/authentication/login/Login";
 import Register from "./components/authentication/register/Register";
 import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
-import UserItemScroller from "./components/mainLayout/UserItemScroller";
-import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
-import { AuthToken, FakeData, Status, User } from "tweeter-shared";
+import ItemScroller from "./components/mainLayout/ItemScroller";
+import StatusItem from "./components/statusItem/StatusItem";
+import UserItem from "./components/userItem/UserItem";
+import { Status, User } from "tweeter-shared";
+import { PagedItemView } from "./presenter/PagedItemPresenter";
+import { FolloweePresenter } from "./presenter/FolloweePresenter";
+import { FollowerPresenter } from "./presenter/FollowerPresenter";
+import { FeedPresenter } from "./presenter/FeedPresenter";
+import { StoryPresenter } from "./presenter/StoryPresenter";
 
 const App = () => {
   const { currentUser, authToken } = useUserInfo();
@@ -39,40 +45,18 @@ const App = () => {
 const AuthenticatedRoutes = () => {
   const { displayedUser } = useUserInfo();
 
-  const loadMoreFollowees = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: User | null
-  ): Promise<[User[], boolean]> => {
-    return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
+  const statusItemComponentFactory = (
+    item: Status,
+    featurePath: string
+  ): JSX.Element => {
+    return <StatusItem status={item} featurePath={featurePath} />;
   };
 
-  const loadMoreFollowers = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: User | null
-  ): Promise<[User[], boolean]> => {
-    return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
-  };
-
-  const loadMoreFeedItems = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: Status | null
-  ): Promise<[Status[], boolean]> => {
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-  };
-
-  const loadMoreStoryItems = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: Status | null
-  ): Promise<[Status[], boolean]> => {
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+  const userItemComponentFactory = (
+    item: User,
+    featurePath: string
+  ): JSX.Element => {
+    return <UserItem user={item} featurePath={featurePath} />;
   };
 
   return (
@@ -82,44 +66,52 @@ const AuthenticatedRoutes = () => {
         <Route
           path="feed/:displayedUser"
           element={
-            <StatusItemScroller
+            <ItemScroller
               key={`feed-${displayedUser!.alias}`}
-              itemDescription="feed items"
               featurePath="/feed"
-              loadMore={loadMoreFeedItems}
+              presenterFactory={(view: PagedItemView<Status>) =>
+                new FeedPresenter(view)
+              }
+              itemComponentFactory={statusItemComponentFactory}
             />
           }
         />
         <Route
           path="story/:displayedUser"
           element={
-            <StatusItemScroller
+            <ItemScroller
               key={`story-${displayedUser!.alias}`}
-              itemDescription="story items"
               featurePath="/story"
-              loadMore={loadMoreStoryItems}
+              presenterFactory={(view: PagedItemView<Status>) =>
+                new StoryPresenter(view)
+              }
+              itemComponentFactory={statusItemComponentFactory}
             />
           }
         />
         <Route
           path="followees/:displayedUser"
           element={
-            <UserItemScroller
+            <ItemScroller
               key={`followees-${displayedUser!.alias}`}
-              itemDescription="followees"
               featurePath="/followees"
-              loadMore={loadMoreFollowees}
+              presenterFactory={(view: PagedItemView<User>) =>
+                new FolloweePresenter(view)
+              }
+              itemComponentFactory={userItemComponentFactory}
             />
           }
         />
         <Route
           path="followers/:displayedUser"
           element={
-            <UserItemScroller
+            <ItemScroller
               key={`followers-${displayedUser!.alias}`}
-              itemDescription="followers"
               featurePath="/followers"
-              loadMore={loadMoreFollowers}
+              presenterFactory={(view: PagedItemView<User>) =>
+                new FollowerPresenter(view)
+              }
+              itemComponentFactory={userItemComponentFactory}
             />
           }
         />
