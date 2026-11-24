@@ -78,9 +78,9 @@ When two of these pull against each other, simplicity wins unless there is a pre
 
 ## Attribution
 
-Two things are required for every task that changes code.
+Two things are required for every task that creates or changes any file, including configuration files. Updating `AI-ATTRIBUTION.md` is always part of the task, even when the task says to change nothing outside a certain folder.
 
-**Marker.** Every file that contains code you wrote or changed gets this as its first line, if it is not already there:
+**Marker.** Every source file (`.ts`, `.tsx`, `.js`) you wrote or changed gets this as its first line, if it is not already there. Files that cannot hold a comment, such as JSON files and `.gitignore`, get no marker but are still listed in the log.
 
 ```
 // AI-assisted: see AI-ATTRIBUTION.md
