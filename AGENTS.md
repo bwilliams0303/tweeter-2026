@@ -6,7 +6,10 @@ Standing instructions for AI coding agents working in this repository. Read this
 
 Tweeter is a Twitter-like web app built for a university software design course. It is graded coursework: the owner must be able to read, explain, and defend every line, so simple and obvious beats clever.
 
-- Language: TypeScript (strict mode). npm workspaces, two modules.
+- Language: TypeScript (strict mode). Three modules: `tweeter-shared` and `tweeter-web` are npm workspaces; `tweeter-server` is standalone.
+- `tweeter-server/`: the back end, deployed to AWS Lambda. It is deliberately not in the root `workspaces` list and has its own `node_modules`. Source in `tweeter-server/src/`, compiled to `tweeter-server/dist/`.
+  - `tweeter-server/src/lambda/<area>/`: Lambda handler functions, one file per endpoint
+  - `tweeter-server/src/model/service/`: service classes the handlers delegate to
 - `tweeter-shared/`: domain classes (`User`, `Status`, `AuthToken`, `Follow`, `PostSegment`) and `FakeData`. Source in `tweeter-shared/src/`, exported through `tweeter-shared/src/index.ts`.
 - `tweeter-web/`: React 18 + Vite front end, Model-View-Presenter.
   - `tweeter-web/src/components/`: React components and hooks (the views)
@@ -21,11 +24,13 @@ Run from the folder shown. All of them must pass before you report a task as fin
 | Check | Folder | Command |
 |---|---|---|
 | Build shared module | `tweeter-shared` | `npm run build` |
+| Build server module | `tweeter-server` | `npm run build` |
 | Type-check | `tweeter-web` | `npx tsc --noEmit` |
 | Tests | `tweeter-web` | `npm test` |
 | Build web module | `tweeter-web` | `npm run build` |
 
-- If you change anything in `tweeter-shared`, rebuild it before running the `tweeter-web` checks; `tweeter-web` reads it from `tweeter-shared/dist`.
+- If you change anything in `tweeter-shared`, rebuild it before running the `tweeter-server` and `tweeter-web` checks; both read it from `tweeter-shared/dist`.
+- Anything other modules need from `tweeter-shared` must be exported by name in `tweeter-shared/src/index.ts`. Use `export type` for interfaces. `export *` does not work when the code is uploaded to Lambda.
 - There is no lint script. Do not add one.
 
 ## Conventions
