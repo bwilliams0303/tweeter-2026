@@ -5,7 +5,8 @@
   "scripts": {
     "build": "npm run compile",
     "compile": "npm run clean && tsc",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "layer": "rimraf layer && mkdir -p layer/nodejs && cp -RL node_modules layer/nodejs/"
   },
   "dependencies": {
     "tweeter-shared": "file:../tweeter-shared",

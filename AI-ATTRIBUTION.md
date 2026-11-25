@@ -27,3 +27,8 @@
 - Tool: Claude Code
 - Task: Add a server FollowService that returns a page of followees as UserDtos from FakeData, and a get-followees Lambda handler that delegates to it. Remove the temporary source file.
 - Review: TODO
+
+## 2026-11-25: tweeter-server/template.yaml (new file), tweeter-server/samconfig.toml (new file), tweeter-server/package.json (modified), tweeter-server/.gitignore (modified)
+- Tool: Claude Code
+- Task: Add the AWS SAM template and config that deploy GetFolloweesLambda behind a POST /followee/list endpoint, a "layer" script that copies node_modules into the Lambda layer folder, and ignore rules for the layer and SAM build folders.
+- Review: TODO
