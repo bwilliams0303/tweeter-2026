@@ -21,4 +21,9 @@
 ## 2026-11-24: tweeter-shared/src/model/net/request/TweeterRequest.ts (new file), tweeter-shared/src/model/net/response/TweeterResponse.ts (new file), tweeter-shared/src/model/net/request/PagedItemRequest.ts (new file), tweeter-shared/src/model/net/response/PagedItemResponse.ts (new file), tweeter-shared/src/index.ts (modified)
 - Tool: Claude Code
 - Task: Add the shared request and response interfaces for a page of items and export them from tweeter-shared.
+- Review: ✅
+
+## 2026-11-24: tweeter-server/src/model/service/FollowService.ts (new file), tweeter-server/src/lambda/follow/GetFolloweesLambda.ts (new file), tweeter-server/src/temp.ts (deleted)
+- Tool: Claude Code
+- Task: Add a server FollowService that returns a page of followees as UserDtos from FakeData, and a get-followees Lambda handler that delegates to it. Remove the temporary source file.
 - Review: TODO
